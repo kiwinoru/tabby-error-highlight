@@ -32,7 +32,8 @@
   "scripts": {
     "build": "rm -rf dist && webpack --progress --color",
     "watch": "webpack --progress --color --watch",
-    "deploy": "npm run build && mkdir -p \"$HOME/Library/Application Support/tabby/plugins/node_modules/tabby-error-highlight\" && cp -rf ./dist ./package.json \"$HOME/Library/Application Support/tabby/plugins/node_modules/tabby-error-highlight/\""
+    "deploy": "npm run build && mkdir -p \"$HOME/Library/Application Support/tabby/plugins/node_modules/tabby-error-highlight\" && cp -rf ./dist ./package.json \"$HOME/Library/Application Support/tabby/plugins/node_modules/tabby-error-highlight/\"",
+    "pack": "npm run build && npm pack && mkdir -p .portable/tabby-error-highlight && cp -rf dist package.json README.md LICENSE .portable/tabby-error-highlight/ && tar -czf tabby-error-highlight-portable.tar.gz -C .portable tabby-error-highlight && tar -cf tabby-error-highlight-portable.tar -C .portable tabby-error-highlight && rm -rf .portable"
   },
   "devDependencies": {
     "@angular/common": "^15.2.10",
