@@ -8,12 +8,11 @@ import { SessionMiddleware } from "tabby-terminal";
  * blanco puro (#ffffff) y fondo rojo (#dc0000), sin depender de la paleta
  * ni de alteraciones del tema del terminal:
  *
- *   - \x1b[1m                    -> Negrita (Bold)
  *   - \x1b[38;2;255;255;255m    -> Color de texto: Blanco puro (RGB 255, 255, 255)
  *   - \x1b[48;2;220;0;0m        -> Color de fondo: Rojo vivo (RGB 220, 0, 0)
  *   - \x1b[0m                   -> Reset de estilos al terminar la palabra
  */
-const HIGHLIGHT_START = "\x1b[1;38;2;255;255;255;48;2;220;0;0m";
+const HIGHLIGHT_START = "\x1b[38;2;255;255;255;48;2;220;0;0m";
 const HIGHLIGHT_END = "\x1b[0m";
 
 /**
