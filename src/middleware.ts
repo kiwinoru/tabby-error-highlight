@@ -1,19 +1,34 @@
 import { SessionMiddleware } from "tabby-terminal";
 
 /**
- * SessionMiddleware that highlights "Error:" (case-insensitive) in red,
- * with a stream buffer to reliably catch occurrences even across
- * low-baudrate serial chunk boundaries.
+ * ============================================================================
+ * CONFIGURACIÓN DE COLOR Y ESTILO DEL RESALTADO (ANSI ESCAPE CODES)
+ * ============================================================================
+ * Usamos TrueColor (RGB 24 bits) para asegurar que el color sea exactamente
+ * blanco puro (#ffffff) y fondo rojo (#dc0000), sin depender de la paleta
+ * ni de alteraciones del tema del terminal:
+ *
+ *   - \x1b[1m                    -> Negrita (Bold)
+ *   - \x1b[38;2;255;255;255m    -> Color de texto: Blanco puro (RGB 255, 255, 255)
+ *   - \x1b[48;2;220;0;0m        -> Color de fondo: Rojo vivo (RGB 220, 0, 0)
+ *   - \x1b[0m                   -> Reset de estilos al terminar la palabra
+ */
+const HIGHLIGHT_START = "\x1b[1;38;2;255;255;255;48;2;220;0;0m";
+const HIGHLIGHT_END = "\x1b[0m";
+
+/**
+ * SessionMiddleware que resalta "Error:" (insensible a mayúsculas/minúsculas)
+ * con un acumulador de stream para asegurar la detección en enlaces serie (9600 baud).
  */
 export class ErrorHighlightMiddleware extends SessionMiddleware {
   private buffer = "";
   private timer: NodeJS.Timeout | null = null;
 
-  // Partial prefixes of "Error:" that could complete across chunk boundaries:
-  // e.g. "e", "er", "err", "erro", "error", "error:"
+  // Prefijos parciales de "Error:" que podrían completarse en el siguiente paquete:
+  // ej. "e", "er", "err", "erro", "error", "error:"
   private readonly PREFIX_REGEX = /e(r(r(o(r(:)?)?)?)?)?$/i;
 
-  // Incomplete ANSI escape sequence at end of chunk (e.g. "\x1b" or "\x1b[1;31")
+  // Secuencia de escape ANSI incompleta al final del chunk (ej. "\x1b" o "\x1b[1;31")
   private readonly INCOMPLETE_ANSI_REGEX = /\x1b(\[[0-9;?]*)?$/;
 
   feedFromSession(data: Buffer): void {
@@ -39,7 +54,7 @@ export class ErrorHighlightMiddleware extends SessionMiddleware {
       return;
     }
 
-    // 1. Immediately flush all complete lines ending in \n or \r
+    // 1. Emitir inmediatamente las líneas completas que terminan en \n o \r
     const lastNl = Math.max(this.buffer.lastIndexOf("\n"), this.buffer.lastIndexOf("\r"));
     if (lastNl !== -1) {
       const ready = this.buffer.slice(0, lastNl + 1);
@@ -47,7 +62,7 @@ export class ErrorHighlightMiddleware extends SessionMiddleware {
       this.emit(this.highlight(ready));
     }
 
-    // 2. Check if the remaining tail already contains complete matches of "Error:"
+    // 2. Comprobar si el texto restante ya contiene coincidencias completas de "Error:"
     if (/error:/i.test(this.buffer)) {
       const matches = [...this.buffer.matchAll(/error:/gi)];
       const lastMatch = matches[matches.length - 1];
@@ -57,13 +72,13 @@ export class ErrorHighlightMiddleware extends SessionMiddleware {
       this.emit(this.highlight(ready));
     }
 
-    // 3. For any remaining partial buffer without newlines:
+    // 3. Para cualquier buffer parcial restante sin saltos de línea:
     if (this.buffer.length > 0) {
       const incompleteAnsi = this.buffer.match(this.INCOMPLETE_ANSI_REGEX);
       const prefixMatch = this.buffer.match(this.PREFIX_REGEX);
 
       if (incompleteAnsi || prefixMatch) {
-        // Hold the potential incomplete sequence (at most a few characters)
+        // Retener solo la posible secuencia incompleta (unos pocos caracteres)
         const holdLen = Math.max(
           incompleteAnsi ? incompleteAnsi[0].length : 0,
           prefixMatch ? prefixMatch[0].length : 0
@@ -75,10 +90,10 @@ export class ErrorHighlightMiddleware extends SessionMiddleware {
           this.emit(this.highlight(ready));
         }
 
-        // Wait up to 25ms for the next serial chunk to arrive
+        // Esperar hasta 25ms a que llegue el siguiente paquete del puerto serie
         this.timer = setTimeout(() => this.process(true), 25);
       } else {
-        // Safe to emit immediately (0ms delay)
+        // Seguro de emitir inmediatamente (0ms de retraso al teclear)
         this.emit(this.highlight(this.buffer));
         this.buffer = "";
       }
@@ -86,10 +101,10 @@ export class ErrorHighlightMiddleware extends SessionMiddleware {
   }
 
   /**
-   * Highlights "Error:" in bold bright-white on red background (\x1b[1;97;41m...\x1b[0m)
+   * Aplica el estilo configurado a "Error:"
    */
   private highlight(text: string): string {
-    return text.replace(/error:/gi, (match) => `\x1b[1;97;41m${match}\x1b[0m`);
+    return text.replace(/error:/gi, (match) => `${HIGHLIGHT_START}${match}${HIGHLIGHT_END}`);
   }
 
   private emit(text: string): void {
