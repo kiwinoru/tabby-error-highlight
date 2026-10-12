@@ -1,6 +1,6 @@
 {
   "name": "tabby-error-highlight",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tabby terminal plugin to highlight 'Error:' on router console connections",
   "main": "dist/index.js",
   "module": "index.ts",
