@@ -2,7 +2,7 @@
 
 Plugin ultraligero y de alto rendimiento para **[Tabby](https://tabby.sh/)**, diseñado específicamente para conexiones por consola a routers (Huawei, Cisco, etc.) y terminales locales.
 
-Creado por [Rubén León (kiwinoru)](https://github.com/kiwinoru).
+Creado por [Rubén León (rubenleonn)](https://github.com/rubenleonn).
 
 ## ¿Qué hace?
 Resalta automáticamente y de forma llamativa la cadena **`Error:`** (insensible a mayúsculas/minúsculas: `Error:`, `ERROR:`, `error:`) con texto en blanco puro sobre fondo rojo vivo usando TrueColor RGB 24-bit (`\x1b[38;2;255;255;255;48;2;220;0;0mError:\x1b[0m`) para detectar errores de sintaxis o comandos al cargar configuraciones en routers de un vistazo rápido, garantizando que el color no dependa de la paleta ni del tema del terminal.

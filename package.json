@@ -8,18 +8,18 @@
   "type": "commonjs",
   "license": "MIT",
   "author": {
-    "name": "Rubén León (kiwinoru)",
+    "name": "Rubén León (rubenleonn)",
     "email": "rubenleon@gmail.com",
-    "url": "https://github.com/kiwinoru"
+    "url": "https://github.com/rubenleonn"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kiwinoru/tabby-error-highlight.git"
+    "url": "git+https://github.com/rubenleonn/tabby-error-highlight.git"
   },
   "bugs": {
-    "url": "https://github.com/kiwinoru/tabby-error-highlight/issues"
+    "url": "https://github.com/rubenleonn/tabby-error-highlight/issues"
   },
-  "homepage": "https://github.com/kiwinoru/tabby-error-highlight#readme",
+  "homepage": "https://github.com/rubenleonn/tabby-error-highlight#readme",
   "keywords": [
     "tabby-plugin",
     "error-highlight",
